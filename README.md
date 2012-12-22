@@ -21,5 +21,13 @@ Some problems:
 - It may sound good to split the way into alternating cutting and
   non-cutting parts, and tag cutting parts. But splitting an existing
   way into new ways will break relations. So the first approach is to
-  tag all way which contains any cutting segments.
+  add new way for each cut edge. Give this way a (fake) osm_id, which
+  is large enough not to conflict with any other way, and put it on
+  layer high enough (e.g. 5).
+
+- Performance. For a town area of about 50.000 inhabitants, graph contains
+  67K nodes, 77K edges, and 12K cut edges located on 3K ways; processing
+  took 11s. But area of 1M inhabitants, 400K nodes and 450K edges, graph
+  construction takes 2 minutes, and then Python repeatedly segfaults in
+  pygraph module (Intel Pentium 1.4GHz, 1G mem)
 
