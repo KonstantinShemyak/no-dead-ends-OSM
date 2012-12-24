@@ -6,8 +6,9 @@ from graphBuilder import HighwayGraphBuilder
 from markWays import markCutEdges
 from time import gmtime, strftime	# Only for print_timing()
 
+# http://docs.python.org/3.0/whatsnew/3.0.html#print-is-a-function
 def print_timing(line):
-  print >> sys.stderr, strftime("%Y-%m-%d %H:%M:%S", gmtime()), line
+  print(strftime("%Y-%m-%d %H:%M:%S", gmtime()), line, file=sys.stderr)
 
 def main(sourceFileName):
 

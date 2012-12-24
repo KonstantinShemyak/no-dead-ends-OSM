@@ -1,7 +1,6 @@
 import sys	# for syt.stdout.write()
 import re
 import fileinput
-from string import rstrip
 from time import gmtime, strftime
 from pygraph.classes.graph import graph
 
@@ -40,7 +39,7 @@ def markCutEdges(file_input, cut_edges):
 
   for line in fileinput.input(file_input):
     if not way_id:
-      print line,
+      print(line, end=" ")
       way_found = way_begin.search(line)
       if way_found:
         way_id = way_found.groups()[0]
@@ -89,17 +88,17 @@ def markCutEdges(file_input, cut_edges):
     if way_end.search(line):
       # End of the way. Flush all collected lines and process the way if needed.
 
-      print out_buffer,
+      print(out_buffer, end=" ")
       out_buffer = ""
       way_id = False
-      print line,
+      print(line, end=" ")
       if way_has_cut_edges:
       # We updated cut_ways_collector only when a cutting segment changes to non-cutting.
       # But if the whole way ended and we were in cutting segment, we must
       # update cut_ways_collector separately.
         if in_cut_segment:
           cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
-        print cut_ways_collector,
+        print(cut_ways_collector, end=" ")
       continue
 
     out_buffer += line
