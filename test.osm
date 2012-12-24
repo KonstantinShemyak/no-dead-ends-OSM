@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <osm version="0.6" >
  <way id="1" >
+  <nd ref="0"/>
   <nd ref="1"/>
   <nd ref="2"/>
   <nd ref="3"/>
   <nd ref="4"/>
   <nd ref="5"/>
+  <nd ref="6"/>
   <tag k="highway" v="cycleway"/>
  </way>
  <way id="2" >

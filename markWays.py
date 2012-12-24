@@ -19,11 +19,10 @@ def markCutEdges(file_input, cut_edges):
      Otherwise, output same content.
   """
   
-  # New way will be created like this.
+  # New way will be created like this. Middle '%s' is for nodes.
   new_way_template = \
-    ' <way id="%s" user="OSM-dead-end-painter" uid="1" visible="true" version="1" changeset="8253012" timestamp="2011-05-26T12:12:21Z" >\n' + \
-    '  <nd ref="%s"/>\n' +\
-    '  <nd ref="%s"/>\n' +\
+    ' <way id="%s" user="OSM-dead-end-painter" visible="true">\n' + \
+    '%s' +\
     '  <tag k="highway" v="service"/>\n' +\
     '  <tag k="construction" v="cut-edge"/>\n' +\
     '  <tag k="layer" v="10"/>\n' +\
@@ -47,8 +46,10 @@ def markCutEdges(file_input, cut_edges):
         way_id = way_found.groups()[0]
         way_nodes = []
         way_has_cut_edges = False
+        cur_cut_edge_nodes = ""
+        in_cut_segment = False
         prev_node = None
-        contained_ways = ""		# For a way with cut edges, put here new ways
+        cut_ways_collector = ""		# Collector for all sub-ways made from cut edges of current way
       continue
 
     # Here, we are inside <way> element.
@@ -59,10 +60,30 @@ def markCutEdges(file_input, cut_edges):
       way_nodes.append(new_node)
       if prev_node != None:
         # Check if this subsegment is in cut_edge set.
-        if (prev_node, new_node) in cut_edges:
-          way_has_cut_edges = True
-          contained_ways += new_way_template % (very_large_offset, prev_node, new_node)
-          very_large_offset += 1
+        # It can be also "the other way around", but it is important to store it
+        # in the order in which the way traversed it.
+        if ((prev_node, new_node) in cut_edges) or ((new_node, prev_node) in cut_edges):
+          if in_cut_segment:
+          # We were in cut segment, it just continues.
+            cur_cut_edge_nodes += '  <nd ref="%s"/>\n' % new_node
+          else:
+          # We were not in cut segment. It started.
+            cur_cut_edge_nodes = '  <nd ref="%s"/>\n  <nd ref="%s"/>\n' % (prev_node, new_node)
+            in_cut_segment = True
+            way_has_cut_edges = True
+        else:
+        # Last edge is not cutting.
+          if in_cut_segment:
+          # We were previously in cut segment, and it ended. Form the new way.
+            cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
+            very_large_offset += 1
+          else:
+          # We were not in cut segment, and are not. No action.
+            pass
+          in_cut_segment = False
+
+        # end of "if (prev, new) in cut_edges"
+
       prev_node = new_node
 
     if way_end.search(line):
@@ -73,7 +94,12 @@ def markCutEdges(file_input, cut_edges):
       way_id = False
       print line,
       if way_has_cut_edges:
-        print contained_ways,
+      # We updated cut_ways_collector only when a cutting segment changes to non-cutting.
+      # But if the whole way ended and we were in cutting segment, we must
+      # update cut_ways_collector separately.
+        if in_cut_segment:
+          cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
+        print cut_ways_collector,
       continue
 
     out_buffer += line
