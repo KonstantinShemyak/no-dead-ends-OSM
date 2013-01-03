@@ -100,7 +100,7 @@ def markCutEdges(file_input, cut_edges):
       # update cut_ways_collector separately.
         if in_cut_segment:
           cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
-        print(cut_ways_collector, end=" ")
+        print(cut_ways_collector, end="")
       continue
 
     # We are still inside <way>, so add whatever we found to the future output
