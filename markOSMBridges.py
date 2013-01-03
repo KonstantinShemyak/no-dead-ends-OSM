@@ -11,7 +11,7 @@ from pygraph.classes.graph import graph
 from pygraph.algorithms.accessibility import cut_edges
 from xml.sax import make_parser
 from graphBuilder import HighwayGraphBuilder
-from markWays import markCutEdges
+from addTaggedWays import addTaggedWays
 from time import gmtime, strftime	# Only for print_timing()
 
 # Only for watching the progress, can be turned off:
@@ -35,7 +35,7 @@ def main(source_file):
   print_timing("Cut edges: %d" % len(cutEdges))
 
   # Do the second pass and output changed highways
-  markCutEdges(source_file, cutEdges)
+  addTaggedWays(source_file, cutEdges)
   print_timing('Marked')
 
 if __name__ == "__main__":
