@@ -1,23 +1,21 @@
 from pygraph.classes.graph import graph
 from pygraph.algorithms.accessibility import cut_edges
-
-import sys	# for syt.stdout.write()
-from time import gmtime, strftime
-
 from xml.sax import ContentHandler
+import sys			# Only for debugging output
 
 class HighwayGraphBuilder(ContentHandler):
-  "Parse OSM XML and fill provided pygraph object with highways."
+  "Parse OpenStreetMap XML and fill provided pygraph object with highways."
 
   def __init__(self, gr):
-    self.gr = gr;		# Does it COPY graph?
-    self.inWay = False
-    self.inHighWay = False
+    self.gr = gr;		# Question: does it COPY graph?
+    self.inWay = False          # True when XML <way> tag is passed, its end tag is not
+    self.inHighWay = False      # True when that way has 'highway=*' tag
+    # For debugging only. Progress indicators:
+    self.reportChunk = 1000	# After how many ways to report something
     self.wayCounter = 0		# How many ways got processed
-    self.reportChunk = 1000	# After how many ways to report
 
   def startElement(self, name, attrs):
-  # Assume that ways cannot be nested.
+  # In OSM XML, ways cannot be nested.
     if name == 'way':
       self.inWay = True
       self.inHighWay = False
@@ -27,9 +25,8 @@ class HighwayGraphBuilder(ContentHandler):
       if self.inWay:
         if attrs.get('k') == 'highway':
           self.inHighWay = True
-          # print("Highway: %s" % self.id)
     elif name == 'nd':
-      # A node on a way. They appear only inside ways.
+      # A node on a way. In OSM XML, they appear only inside ways.
       self.wayNodeList.append(attrs.get('ref'))
 
   
@@ -50,8 +47,7 @@ class HighwayGraphBuilder(ContentHandler):
       if not self.gr.has_node(v):
         self.gr.add_node(v)
       if not self.gr.has_edge((prev_node, v)):
-        # Marking the edge: label = way id
-        self.gr.add_edge((prev_node, v), label=self.id)
+        self.gr.add_edge((prev_node, v))
       prev_node = v
     
     self.wayCounter += 1
