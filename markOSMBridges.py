@@ -1,3 +1,11 @@
+"""Find and mark cut edges in OSM XML way graph. 
+
+Read OSM XML. Construct graph from its ways. Find cut edges in that graph.
+Output the same XML but with additional ways created from each cut segment.
+These new ways have own tag, which can be used for rendering.
+
+A pipe cannot be used instead of the file, as the input XML is processed in two passes.
+"""
 import sys
 from pygraph.classes.graph import graph
 from pygraph.algorithms.accessibility import cut_edges
@@ -12,14 +20,12 @@ def print_timing(line):
 
 def main(sourceFileName):
 
-  parser = make_parser()
-
-  # http://wiki.python.org/moin/PythonSpeed
   print_timing('Started')
+  parser = make_parser()
   # Construct the graph from highways to find cut edges:
   gr = graph()
   parser.setContentHandler(HighwayGraphBuilder(gr))
-  # Looks like building the graph is about linear!
+  # Looks like building the graph is about linear in time!
   parser.parse(sourceFileName)
   print_timing('Graph built, %d nodes, %d edges' % (len(gr.nodes()), len(gr.edges()) / 2))
 
