@@ -1,24 +1,22 @@
-import sys	# for syt.stdout.write()
+import sys	# for sys.stdout.write()
 import re
 import fileinput
 from time import gmtime, strftime
 from pygraph.classes.graph import graph
 
+# Copying and modifying ways seems to be easier with own simple "parser" than with SAX.
 # We assume the following structure for the input XML:
-# - Four top-level elements possible: <bounds>, <node>, <way>, <relation>
-# - we just copy everything of <node> and <relation>
 # - inside <way>, only two elements are possible: <nd>, <tag>
 # - <way id="..." ...other attributes...> is always on one line.
-# Copying and modifying ways seems to be easier with own simple "parser" than with SAX.
+# - <way ...> is never self-closing, i.e. it is followed by </way> later.
 
 def markCutEdges(file_input, cut_edges):
-  """Go along OSM XML. Create new ways for each cut edge and tag them with deadEndTag.
-     Was earlier: If a highway is in ways_with_cut set so that it contains segments from cut_edges set,
-     tag the whole way with deadEndTag.
-     Otherwise, output same content.
+  """Go along OSM XML in file_input. Copy everything to stdout.
+     Additionally, for each way, see if it has any segment(s) mentioned in cut_edges.
+     If it has, output also additional way for each 'cutting' part of the original way.
   """
   
-  # New way will be created like this. Middle '%s' is for nodes.
+  # New way will be created like this. Second '%s' is for nodes.
   new_way_template = \
     ' <way id="%s" user="OSM-dead-end-painter" visible="true">\n' + \
     '%s' +\
@@ -39,7 +37,7 @@ def markCutEdges(file_input, cut_edges):
 
   for line in fileinput.input(file_input):
     if not way_id:
-      print(line, end=" ")
+      print(line, end="")
       way_found = way_begin.search(line)
       if way_found:
         way_id = way_found.groups()[0]
@@ -48,7 +46,8 @@ def markCutEdges(file_input, cut_edges):
         cur_cut_edge_nodes = ""
         in_cut_segment = False
         prev_node = None
-        cut_ways_collector = ""		# Collector for all sub-ways made from cut edges of current way
+        # Collector for all new ways made from cut segments of current way:
+        cut_ways_collector = ""		
       continue
 
     # Here, we are inside <way> element.
@@ -87,11 +86,14 @@ def markCutEdges(file_input, cut_edges):
 
     if way_end.search(line):
       # End of the way. Flush all collected lines and process the way if needed.
-
-      print(out_buffer, end=" ")
+      # First, print the existing way
+      print(out_buffer, end="")
       out_buffer = ""
       way_id = False
-      print(line, end=" ")
+      # and the closing tag of the existing way
+      print(line, end="")
+
+      # Now, output new ways, if there are any
       if way_has_cut_edges:
       # We updated cut_ways_collector only when a cutting segment changes to non-cutting.
       # But if the whole way ended and we were in cutting segment, we must
@@ -101,11 +103,6 @@ def markCutEdges(file_input, cut_edges):
         print(cut_ways_collector, end=" ")
       continue
 
+    # We are still inside <way>, so add whatever we found to the future output
     out_buffer += line
-
-if __name__ == "__main__":
-  # Some test values:
-  cut_edges = set(["41236365", "41230806", "41237255"])
-  markCutEdges(sys.argv[1], cut_edges, None)
-
 
