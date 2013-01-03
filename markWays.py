@@ -10,6 +10,10 @@ from pygraph.classes.graph import graph
 # - <way id="..." ...other attributes...> is always on one line.
 # - <way ...> is never self-closing, i.e. it is followed by </way> later.
 
+def compatible_print(line):
+  # Can it be so hard to print without newline in both Python 2 and 3?
+  sys.stdout.write(line)
+
 def markCutEdges(file_input, cut_edges):
   """Go along OSM XML in file_input. Copy everything to stdout.
      Additionally, for each way, see if it has any segment(s) mentioned in cut_edges.
@@ -37,7 +41,7 @@ def markCutEdges(file_input, cut_edges):
 
   for line in fileinput.input(file_input):
     if not way_id:
-      print(line, end="")
+      compatible_print(line)
       way_found = way_begin.search(line)
       if way_found:
         way_id = way_found.groups()[0]
@@ -87,11 +91,11 @@ def markCutEdges(file_input, cut_edges):
     if way_end.search(line):
       # End of the way. Flush all collected lines and process the way if needed.
       # First, print the existing way
-      print(out_buffer, end="")
+      compatible_print(out_buffer)
       out_buffer = ""
       way_id = False
       # and the closing tag of the existing way
-      print(line, end="")
+      compatible_print(line)
 
       # Now, output new ways, if there are any
       if way_has_cut_edges:
@@ -100,7 +104,7 @@ def markCutEdges(file_input, cut_edges):
       # update cut_ways_collector separately.
         if in_cut_segment:
           cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
-        print(cut_ways_collector, end="")
+        compatible_print(cut_ways_collector)
       continue
 
     # We are still inside <way>, so add whatever we found to the future output
