@@ -104,6 +104,7 @@ def addTaggedWays(file_input, cut_edges):
       # update cut_ways_collector separately.
         if in_cut_segment:
           cut_ways_collector += new_way_template % (very_large_offset, cur_cut_edge_nodes)
+          very_large_offset += 1
         compatible_print(cut_ways_collector)
       continue
 
