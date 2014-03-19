@@ -38,3 +38,8 @@ Dependencies
 The code uses [pygraph.algorithms][http://dl.dropboxusercontent.com/u/1823095/python-graph/docs/pygraph.algorithms.accessibility-module.html] module 
 In Ubuntu Linux, it is provided by *python-pygraph* package.
 
+Usage
+=====
+
+	python markOSMbridges.py source.xml [> result.xml]
+
