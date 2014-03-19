@@ -32,3 +32,9 @@ Some problems:
   construction takes 2 minutes, and then Python repeatedly segfaults in
   pygraph module (Intel Pentium 1.4GHz, 1G mem)
 
+Dependencies
+============
+
+The code uses [pygraph.algorithms][http://dl.dropboxusercontent.com/u/1823095/python-graph/docs/pygraph.algorithms.accessibility-module.html] module 
+In Ubuntu Linux, it is provided by *python-pygraph* package.
+
