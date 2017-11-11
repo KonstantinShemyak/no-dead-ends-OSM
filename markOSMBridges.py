@@ -11,32 +11,33 @@ from pygraph.classes.graph import graph
 from pygraph.algorithms.accessibility import cut_edges
 from xml.sax import make_parser
 from graphBuilder import HighwayGraphBuilder
-from addTaggedWays import addTaggedWays
-from time import gmtime, strftime	# Only for print_timing()
+from addTaggedWays import add_tagged_ways
+from time import gmtime, strftime       # Only for print_timing()
+
 
 # Only for watching the progress, can be turned off:
 def print_timing(line):
-  timestamp = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-  sys.stderr.write("%s %s\n" % (timestamp, line))
+    timestamp = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    sys.stderr.write("%s %s\n" % (timestamp, line))
+
 
 def main(source_file):
+    print_timing('Started')
+    parser = make_parser()
+    # Construct the graph from highways to find cut edges:
+    gr = graph()
+    parser.setContentHandler(HighwayGraphBuilder(gr))
+    # Looks like building the graph is about linear in time!
+    parser.parse(source_file)
+    print_timing('Graph built, %d nodes, %d edges' % (len(gr.nodes()), len(gr.edges()) / 2))
 
-  print_timing('Started')
-  parser = make_parser()
-  # Construct the graph from highways to find cut edges:
-  gr = graph()
-  parser.setContentHandler(HighwayGraphBuilder(gr))
-  # Looks like building the graph is about linear in time!
-  parser.parse(source_file)
-  print_timing('Graph built, %d nodes, %d edges' % (len(gr.nodes()), len(gr.edges()) / 2))
+    # Find cut edges and collect them to a set
+    our_cut_edges = set(cut_edges(gr))
+    print_timing("Cut edges: %d" % len(our_cut_edges))
 
-  # Find cut edges and collect them to a set
-  cutEdges = set(cut_edges(gr))
-  print_timing("Cut edges: %d" % len(cutEdges))
-
-  # Do the second pass and output changed highways
-  addTaggedWays(source_file, cutEdges)
-  print_timing('Marked')
+    # Do the second pass and output changed highways
+    add_tagged_ways(source_file, our_cut_edges)
+    print_timing('Marked')
 
 if __name__ == "__main__":
-  main(sys.argv[1])
+    main(sys.argv[1])
