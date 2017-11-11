@@ -1,28 +1,31 @@
-no-dead-ends-OSM
+No-dead-ends-OSM
 ================
 
-Marking all dead ends and cut edges on OpenStreetMap
-http://konstantin.shemyak.com/osm
+This project marks the dead ends (in fact, all 
+[cut edges](https://en.wikipedia.org/wiki/Bridge_(graph_theory)))
+on OpenStreetMap.
+See an [example](http://konstantin.shemyak.com/osm/no-dead-ends.html).
 
-We want to wonder around with OpenStreetMap and never need to go 
-back along the same way. To simplify the navigation, we would like
+We want to wonder around, navigating with OpenStreetMap, and never need to go 
+back along the same way. To see where not to go, we'd like
 to add special marking to all cut-edges on the road graph.
 
 The project reads OSM XML, builds the road graph, finds cut edges and
 adds a tag to them (currently `<tag k="construction" v="cut-edge">`).
-Later, this XML can be rendered producing the wanted map.
+Later, this XML can be rendered to show the map with cut edges marked.
 
-Some problems:
+Technical problems, or dirty temporary workarounds:
+---------------------------------------------------
 
 - We could add own tag (like `<tag k="cut-edge" v="yes">`), but the
-  Mapnik renderer reads its data from own database, which accepts only
-  known tags. So at least to render with Mapnik and DB, some known tag
-  must be abused.
+  Mapnik will not understand it.
+  So in order to render with Mapnik, some tag known to it
+  must be (ab)used.
 
 - It may sound good to split the way into alternating cutting and
-  non-cutting parts, and tag cutting parts. But splitting an existing
+  non-cutting parts, and tag the cutting parts. But splitting an existing
   way into new ways will break relations. So the first approach is to
-  add new way for each cut edge. Give this way a (fake) `osm_id`, which
+  add new way for each cut edge. Give this way a fake `osm_id`, which
   is large enough not to conflict with any other way, and put it on
   layer high enough (e.g. 5).
 
