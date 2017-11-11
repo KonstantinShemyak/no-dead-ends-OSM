@@ -9,12 +9,12 @@ back along the same way. To simplify the navigation, we would like
 to add special marking to all cut-edges on the road graph.
 
 The project reads OSM XML, builds the road graph, finds cut edges and
-adds a tag to them (currently '<tag k="construction" v="cut-edge">').
+adds a tag to them (currently `<tag k="construction" v="cut-edge">`).
 Later, this XML can be rendered producing the wanted map.
 
 Some problems:
 
-- We could add own tag (like '<tag k="cut-edge" v="yes">), but the
+- We could add own tag (like `<tag k="cut-edge" v="yes">`), but the
   Mapnik renderer reads its data from own database, which accepts only
   known tags. So at least to render with Mapnik and DB, some known tag
   must be abused.
@@ -22,7 +22,7 @@ Some problems:
 - It may sound good to split the way into alternating cutting and
   non-cutting parts, and tag cutting parts. But splitting an existing
   way into new ways will break relations. So the first approach is to
-  add new way for each cut edge. Give this way a (fake) osm_id, which
+  add new way for each cut edge. Give this way a (fake) `osm_id`, which
   is large enough not to conflict with any other way, and put it on
   layer high enough (e.g. 5).
 
@@ -35,7 +35,8 @@ Some problems:
 Dependencies
 ============
 
-The code uses [pygraph.algorithms][http://dl.dropboxusercontent.com/u/1823095/python-graph/docs/pygraph.algorithms.accessibility-module.html] module 
+The code uses [pygraph.algorithms](http://dl.dropboxusercontent.com/u/1823095/python-graph/docs/pygraph.algorithms.accessibility-module.html)
+module.
 In Ubuntu Linux, it is provided by *python-pygraph* package.
 
 Usage
